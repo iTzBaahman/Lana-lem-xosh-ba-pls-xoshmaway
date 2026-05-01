@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For Lana 💍</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --rose: #e8a0a0;
+    --deep: #1a0a0f;
+    --cream: #fdf6ec;
+    --blush: #f5dada;
+  }
+
+  body {
+    background: var(--deep);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: default;
+    min-height: 100vh;
+  }
+
+  /* ── STARS ── */
+  #stars-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── PETALS ── */
+  .petal {
+    position: fixed;
+    top: -40px;
+    font-size: 1.4rem;
+    opacity: 0;
+    animation: fall linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  @keyframes fall {
+    0%   { opacity: 0; transform: translateY(0) rotate(0deg) scale(0.8); }
+    10%  { opacity: 0.8; }
+    90%  { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(110vh) rotate(720deg) scale(1.2); }
+  }
+
+  /* ── SCREENS ── */
+  .screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.8s ease;
+    padding: 2rem;
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* ── SCREEN 1: LOCK ── */
+  #s1 { background: radial-gradient(ellipse at center, #2d0a1a 0%, #0d0308 100%); }
+  .lock-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    color: var(--gold-light);
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 40px rgba(201,168,76,0.5);
+    margin-bottom: 0.4rem;
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  .lock-sub {
+    color: var(--rose);
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-style: italic;
+    letter-spacing: 0.15em;
+    margin-bottom: 3rem;
+    opacity: 0.85;
+  }
+  @keyframes glow {
+    from { text-shadow: 0 0 20px rgba(201,168,76,0.4); }
+    to   { text-shadow: 0 0 60px rgba(201,168,76,0.9), 0 0 100px rgba(201,168,76,0.3); }
+  }
+
+  .heart-lock {
+    font-size: 5rem;
+    cursor: pointer;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    animation: heartbeat 1.8s ease-in-out infinite;
+    margin-bottom: 2rem;
+    filter: drop-shadow(0 0 20px rgba(232,160,160,0.6));
+  }
+  .heart-lock:hover { transform: scale(1.2); filter: drop-shadow(0 0 35px rgba(232,160,160,1)); }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    14%       { transform: scale(1.12); }
+    28%       { transform: scale(1); }
+    42%       { transform: scale(1.08); }
+    70%       { transform: scale(1); }
+  }
+  .tap-hint {
+    color: rgba(245,218,218,0.5);
+    font-size: 0.95rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.9} }
+
+  /* ── SCREEN 2: STORY ── */
+  #s2 { background: radial-gradient(ellipse at 30% 50%, #1f0813 0%, #080208 100%); }
+  .story-wrap {
+    max-width: 680px;
+    text-align: center;
+  }
+  .story-line {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--cream);
+    font-size: clamp(1.1rem, 2.8vw, 1.55rem);
+    line-height: 1.85;
+    font-weight: 300;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    margin-bottom: 0.5rem;
+  }
+  .story-line.visible { opacity: 1; transform: translateY(0); }
+  .story-line em { color: var(--gold-light); font-style: italic; }
+  .story-line.big {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    color: var(--gold-light);
+    margin: 1.2rem 0;
+    font-style: italic;
+  }
+  .next-btn {
+    margin-top: 2.5rem;
+    opacity: 0;
+    transition: opacity 1s ease 2s;
+  }
+  .next-btn.show { opacity: 1; }
+
+  /* ── SCREEN 3: RING ── */
+  #s3 { background: radial-gradient(ellipse at center, #1a0510 0%, #07020a 100%); }
+  .ring-stage {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 2.5rem;
+  }
+  .ring-circle {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 6px solid transparent;
+    background: 
+      linear-gradient(var(--deep), var(--deep)) padding-box,
+      linear-gradient(135deg, var(--gold), var(--gold-light), var(--gold)) border-box;
+    animation: spinRing 8s linear infinite;
+  }
+  .ring-circle::before {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    border: 3px solid rgba(201,168,76,0.25);
+  }
+  .ring-gem {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 36px;
+    background: radial-gradient(circle at 35% 35%, #fff 0%, #b8d4ff 30%, #5090e0 60%, #1a40a0 100%);
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    filter: drop-shadow(0 0 12px rgba(120,180,255,0.9));
+    animation: gemGlow 2s ease-in-out infinite alternate;
+  }
+  @keyframes gemGlow {
+    from { filter: drop-shadow(0 0 8px rgba(120,180,255,0.7)); }
+    to   { filter: drop-shadow(0 0 22px rgba(180,210,255,1)); }
+  }
+  @keyframes spinRing { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  .ring-inner {
+    position: absolute;
+    inset: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+  }
+  .proposal-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.8rem);
+    color: var(--gold-light);
+    text-align: center;
+    font-style: italic;
+    line-height: 1.2;
+    text-shadow: 0 0 50px rgba(201,168,76,0.6);
+    margin-bottom: 1rem;
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  .proposal-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.2rem, 3vw, 1.7rem);
+    color: var(--rose);
+    text-align: center;
+    letter-spacing: 0.1em;
+    margin-bottom: 3rem;
+    font-style: italic;
+  }
+  .btn-row {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.1em;
+    padding: 0.85rem 2.8rem;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-style: italic;
+  }
+  .btn-yes {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--deep);
+    box-shadow: 0 4px 25px rgba(201,168,76,0.45);
+  }
+  .btn-yes:hover { transform: scale(1.08); box-shadow: 0 8px 40px rgba(201,168,76,0.7); }
+  .btn-no {
+    background: transparent;
+    color: rgba(245,218,218,0.45);
+    border: 1px solid rgba(245,218,218,0.2);
+    transition: all 0.15s;
+  }
+
+  /* ── SCREEN 4: YES ── */
+  #s4 { background: radial-gradient(ellipse at center, #1f0818 0%, #080210 100%); }
+  .yes-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 10vw, 7rem);
+    color: var(--gold-light);
+    font-style: italic;
+    text-align: center;
+    animation: yesEntrance 1s ease forwards, glow 3s 1s ease-in-out infinite alternate;
+    opacity: 0;
+    text-shadow: 0 0 60px rgba(201,168,76,0.7);
+  }
+  @keyframes yesEntrance {
+    from { opacity:0; transform: scale(0.4) rotate(-10deg); }
+    to   { opacity:1; transform: scale(1) rotate(0deg); }
+  }
+  .yes-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.2rem, 3vw, 1.9rem);
+    color: var(--cream);
+    text-align: center;
+    font-style: italic;
+    margin-top: 1.2rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 0.6s forwards;
+    line-height: 1.7;
+  }
+  .hearts-burst {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-top: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease 1.2s forwards;
+    letter-spacing: 0.3em;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1.5rem auto;
+    opacity: 0.6;
+  }
+
+  /* ── BUTTON SHARED ── */
+  .action-btn {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.12em;
+    padding: 0.75rem 2.4rem;
+    border-radius: 50px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold-light);
+    cursor: pointer;
+    transition: all 0.25s;
+    font-style: italic;
+  }
+  .action-btn:hover {
+    background: rgba(201,168,76,0.15);
+    box-shadow: 0 0 20px rgba(201,168,76,0.3);
+  }
+
+  /* ── FLOATING HEARTS ── */
+  .float-heart {
+    position: fixed;
+    font-size: 1.2rem;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 5;
+    animation: floatUp 3s ease forwards;
+  }
+  @keyframes floatUp {
+    0%   { opacity:0; transform: translateY(0) scale(0.5); }
+    20%  { opacity:1; }
+    80%  { opacity:0.6; }
+    100% { opacity:0; transform: translateY(-200px) scale(1.4); }
+  }
+
+  /* No button run away effect handled in JS */
+</style>
+</head>
+<body>
+
+<canvas id="stars-canvas"></canvas>
+
+<!-- Falling petals -->
+<div id="petals"></div>
+
+<!-- ══ SCREEN 1: Open ══ -->
+<div class="screen active" id="s1">
+  <div class="lock-title">A message just for you</div>
+  <div class="lock-sub">Lana</div>
+  <div class="heart-lock" id="heartLock" title="Tap to open">💝</div>
+  <div class="tap-hint">tap to open</div>
+  <div style="position:absolute;bottom:2rem;font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(201,168,76,0.35);font-size:0.9rem;letter-spacing:0.2em;">by Bahman</div>
+</div>
+
+<!-- ══ SCREEN 2: Story ══ -->
+<div class="screen" id="s2">
+  <div class="story-wrap" id="storyWrap">
+    <p class="story-line" data-delay="300">From the very first moment I saw you,</p>
+    <p class="story-line" data-delay="900">something in my world shifted —</p>
+    <p class="story-line big" data-delay="1600">quietly, completely, forever.</p>
+    <div class="divider" style="opacity:0;transition:opacity 0.8s ease 2.2s" id="div1"></div>
+    <p class="story-line" data-delay="2500">You are my calm on restless nights,</p>
+    <p class="story-line" data-delay="3100">my laughter, my home,</p>
+    <p class="story-line" data-delay="3700">my favourite reason to smile.</p>
+    <div class="divider" style="opacity:0;transition:opacity 0.8s ease 4.2s" id="div2"></div>
+    <p class="story-line" data-delay="4600">And I know, with every part of me,</p>
+    <p class="story-line big" data-delay="5300">that I never want to stop choosing you.</p>
+    <div class="next-btn" id="nextBtn">
+      <button class="action-btn" onclick="goTo('s3')">continue ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: The Question ══ -->
+<div class="screen" id="s3">
+  <div class="ring-stage">
+    <div class="ring-circle"></div>
+    <div class="ring-gem"></div>
+    <div class="ring-inner">💍</div>
+  </div>
+  <div class="proposal-text">Will you marry me?</div>
+  <div class="proposal-name">— with all my love, always — Bahman</div>
+  <div class="btn-row">
+    <button class="btn btn-yes" onclick="sayYes()">Yes, forever! 💍</button>
+    <button class="btn btn-no" id="noBtn" onmouseover="runAway(this)" ontouchstart="runAway(this)">No</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4: She Said Yes ══ -->
+<div class="screen" id="s4">
+  <div class="yes-title">She said Yes! 💍</div>
+  <div class="yes-sub">
+    Lana, you've made me the happiest person alive.<br>
+    Today, tomorrow, and every day after —<br>
+    <em style="color:var(--gold-light)">you are my greatest adventure.</em>
+  </div>
+  <div class="hearts-burst">💖 💍 💖 💍 💖</div>
+  <div style="margin-top:2.5rem; font-family:'Cormorant Garamond',serif; font-style:italic; color:rgba(245,218,218,0.5); font-size:1rem; letter-spacing:0.15em; text-align:center;">
+    coded with love by Bahman 💻❤️
+  </div>
+</div>
+
+<script>
+// ── Stars ──
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+let stars = [];
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = Array.from({length: 200}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.5 + 0.3,
+    a: Math.random(),
+    speed: Math.random() * 0.008 + 0.003
+  }));
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+function drawStars() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.a += s.speed;
+    const alpha = (Math.sin(s.a) + 1) / 2 * 0.8 + 0.1;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,240,200,${alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// ── Petals ──
+const petals = document.getElementById('petals');
+const petalChars = ['🌸','🌺','💮','🌷','✿'];
+for (let i = 0; i < 18; i++) {
+  const p = document.createElement('div');
+  p.className = 'petal';
+  p.textContent = petalChars[Math.floor(Math.random() * petalChars.length)];
+  p.style.left = Math.random() * 100 + 'vw';
+  p.style.animationDuration = (Math.random() * 8 + 7) + 's';
+  p.style.animationDelay = (Math.random() * 12) + 's';
+  p.style.fontSize = (Math.random() * 0.8 + 0.9) + 'rem';
+  petals.appendChild(p);
+}
+
+// ── Screen transitions ──
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 's2') startStory();
+}
+
+document.getElementById('heartLock').addEventListener('click', () => {
+  spawnHearts(window.innerWidth / 2, window.innerHeight / 2, 8);
+  setTimeout(() => goTo('s2'), 400);
+});
+
+// ── Story animation ──
+function startStory() {
+  const lines = document.querySelectorAll('#s2 .story-line');
+  lines.forEach(line => {
+    const delay = parseInt(line.dataset.delay) || 0;
+    setTimeout(() => line.classList.add('visible'), delay);
+  });
+  document.getElementById('div1').style.opacity = '0.6';
+  document.getElementById('div2').style.opacity = '0.6';
+  setTimeout(() => {
+    document.getElementById('nextBtn').classList.add('show');
+  }, 5800);
+}
+
+// ── No button run away ──
+function runAway(btn) {
+  const maxX = window.innerWidth - 120;
+  const maxY = window.innerHeight - 60;
+  btn.style.position = 'fixed';
+  btn.style.left = Math.random() * maxX + 'px';
+  btn.style.top = Math.random() * maxY + 'px';
+  btn.style.zIndex = 99;
+}
+
+// ── Yes! ──
+function sayYes() {
+  for (let i = 0; i < 30; i++) {
+    setTimeout(() => {
+      spawnHearts(
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight,
+        1
+      );
+    }, i * 80);
+  }
+  setTimeout(() => goTo('s4'), 700);
+  // Reset no button
+  const nb = document.getElementById('noBtn');
+  nb.style.position = '';
+  nb.style.left = '';
+  nb.style.top = '';
+}
+
+// ── Floating hearts ──
+function spawnHearts(x, y, count) {
+  const h = ['💖','💗','💕','💞','💍','✨','🌸'];
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'float-heart';
+    el.textContent = h[Math.floor(Math.random() * h.length)];
+    el.style.left = (x + (Math.random() - 0.5) * 100) + 'px';
+    el.style.top = (y + (Math.random() - 0.5) * 60) + 'px';
+    el.style.animationDelay = (Math.random() * 0.4) + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
+}
+</script>
+</body>
+</html>
